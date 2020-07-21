@@ -1,0 +1,33 @@
+/*
+* SQL : Bordereau Urssaf
+* Version 1.00
+* Auteur : fel
+* Date : 2020.07.21
+*
+*/
+SELECT
+    ir.cod_typpers || ir.cod_classif AS typpers,
+    ir.libelle_typpers,
+    ir.num_employ,
+    ir.cod_regcot,
+    COUNT(DISTINCT(ir.idf_agent) ) AS effectif,
+    round(SUM(ir.sal_a_cumuler),0) AS salaires,
+    ir.taux_typpers   AS taux_theorique,
+    round((20 * sum(ir.MNT_IMPUT) / sum(ir.SAL_A_CUMULER)), 2)*5 as taux_calc,
+    round(SUM(ir.mnt_imput),0) AS cotisations
+FROM
+    rh.impagtrep ir
+WHERE
+    ir.cod_typpers IS NOT NULL
+    AND ir.cod_coll = 'CG74' /* personnaliser*/
+    AND TO_CHAR(TO_DATE(ir.dat_calpai,'j'),'DD/MM/YYYY') = '01/08/2020' /* personnaliser*/
+GROUP BY
+    ir.cod_typpers || ir.cod_classif,
+    ir.libelle_typpers,
+    ir.num_employ,
+    ir.cod_regcot,
+    ir.taux_typpers
+HAVING
+    SUM(ir.sal_a_cumuler) != 0
+ORDER BY
+    1;
